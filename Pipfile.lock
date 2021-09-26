@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7379ce900adadb9ee5091e36ab2ebbf9ef27c02731a5546fb10934f9c7da396b"
+            "sha256": "698a8d462e34ce5f5fb691ec1da97e2601f591fdf0e99507a618d4f21464e2d7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -31,6 +31,14 @@
             "markers": "python_version >= '3'",
             "version": "==2.0.6"
         },
+        "dj-config-url": {
+            "hashes": [
+                "sha256:32b87c85f6359a6a772bd8d5e131640529c4addfc2069918f4eaa8de8ecbb548",
+                "sha256:8c411dca3ead2b64786c9ae735ef3085518ff92a79e98e441953b26c47063e3f"
+            ],
+            "index": "pypi",
+            "version": "==0.1.1"
+        },
         "idna": {
             "hashes": [
                 "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a",
@@ -39,12 +47,27 @@
             "markers": "python_version >= '3'",
             "version": "==3.2"
         },
-        "pytelegrambotapi": {
+        "psycopg2": {
             "hashes": [
-                "sha256:9395f13cba420744c5a315638e3348c05ddbeecb9e761ded206c89eeb8a6db0a"
+                "sha256:079d97fc22de90da1d370c90583659a9f9a6ee4007355f5825e5f1c70dffc1fa",
+                "sha256:2087013c159a73e09713294a44d0c8008204d06326006b7f652bef5ace66eebb",
+                "sha256:2c992196719fadda59f72d44603ee1a2fdcc67de097eea38d41c7ad9ad246e62",
+                "sha256:7640e1e4d72444ef012e275e7b53204d7fab341fb22bc76057ede22fe6860b25",
+                "sha256:7f91312f065df517187134cce8e395ab37f5b601a42446bdc0f0d51773621854",
+                "sha256:830c8e8dddab6b6716a4bf73a09910c7954a92f40cf1d1e702fb93c8a919cc56",
+                "sha256:89409d369f4882c47f7ea20c42c5046879ce22c1e4ea20ef3b00a4dfc0a7f188",
+                "sha256:bf35a25f1aaa8a3781195595577fcbb59934856ee46b4f252f56ad12b8043bcf",
+                "sha256:de5303a6f1d0a7a34b9d40e4d3bef684ccc44a49bbe3eb85e3c0bffb4a131b7c"
             ],
             "index": "pypi",
-            "version": "==4.0.1"
+            "version": "==2.9.1"
+        },
+        "pytelegrambotapi": {
+            "hashes": [
+                "sha256:c84218af7e08e859e07cfe5645d9586ceaad51c24f0f4529a9ed0adafd5aa0bf"
+            ],
+            "index": "pypi",
+            "version": "==4.1.0"
         },
         "requests": {
             "hashes": [
@@ -63,10 +86,10 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:39fb8672126159acb139a7718dd10806104dec1e2f0f6c88aab05d17df10c8d4",
-                "sha256:f57b4c16c62fa2760b7e3d97c35b255512fb6b59a259730f36ba32ce9f8e342f"
+                "sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece",
+                "sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844"
             ],
-            "version": "==1.26.6"
+            "version": "==1.26.7"
         }
     },
     "develop": {}

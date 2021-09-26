@@ -8,6 +8,9 @@ verify_ssl = true
 [packages]
 telebot = "*"
 pytelegrambotapi = "*"
+psycopg2 = "*"
+dj-config-url = "*"
+settings = "*"
 
 [requires]
 python_version = "3.6"

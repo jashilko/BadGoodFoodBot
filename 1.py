@@ -1,12 +1,15 @@
 import telebot
+import os
+from PSQLighter import PSQLighter
 from collections import defaultdict
 from telebot import types
 
-token = '2026507498:AAGcuj1jxGjn6poh27UNuseZr3fZfyqs-Kk'
+token = os.environ['tg_token']
 
 START, PHOTO, RATE, CATEGORY, DESCR, FINISH = range(6)
 USER_STATE = defaultdict(lambda: START)
 
+db_worker = PSQLighter()
 
 # Получаем состояние пользователя
 def get_state(message):
@@ -40,6 +43,7 @@ def callback_handler(callback_query):
         update_state(message, CATEGORY)
     if text == 'canceldescr':
         update_state(message, FINISH)
+        bot.send_message(chat_id=message.chat.id, text='Укажи категорию: ')
 
 
 # Начальное состояние → Просим фото.
@@ -53,6 +57,8 @@ def handle_message(message):
 @bot.message_handler(func=lambda message: get_state(message) == PHOTO)
 @bot.message_handler(content_types=['photo'])
 def handle_message(message):
+    # Проверка пользователя на существование
+    print(db_worker.check_exist_client(message.chat))
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     b1 = types.InlineKeyboardButton(text='💩' + ' Говно', callback_data='shit')
     b2 = types.InlineKeyboardButton(text='Охуенно ' + '😻', callback_data='good')
