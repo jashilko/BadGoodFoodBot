@@ -58,7 +58,11 @@ def handle_message(message):
 @bot.message_handler(content_types=['photo'])
 def handle_message(message):
     # Проверка пользователя на существование
-    print(db_worker.check_exist_client(message.chat))
+    db_worker.check_exist_client(message.chat)
+    # Пользователь прислал описание или фото
+    if message.photo is None:
+        db_worker.set_descr(message)
+
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     b1 = types.InlineKeyboardButton(text='💩' + ' Говно', callback_data='shit')
     b2 = types.InlineKeyboardButton(text='Охуенно ' + '😻', callback_data='good')

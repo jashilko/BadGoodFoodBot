@@ -26,6 +26,7 @@ class PSQLighter:
             self.connection = psycopg2.connect(database)
             self.cursor = self.connection.cursor()
             self.connection.set_client_encoding('UTF8')
+            self.id_feedback = None
             print("connection success")
         except Exception as e:
             print("Ошибка __init__: %s" % str(e))
@@ -33,31 +34,57 @@ class PSQLighter:
     # Создание нового пользователя
     def create_user(self, user):
         try:
-            self.cursor.execute('''INSERT INTO users(id, user_name, first_name, last_name) VALUES (%s, \'%s\', \'%s\', \'%s\') RETURNING id;''' % (
-                user.id, user.username, user.first_name, user.last_name))
-            id_of_new_row = self.cursor.fetchone()[0]
-            self.connection.commit
-            return id_of_new_row
+            with self.connection:
+                self.cursor.execute('''INSERT INTO users(user_id, user_name, first_name, last_name) VALUES (%s, \'%s\', \'%s\', \'%s\') RETURNING id;''' % (
+                    user.id, user.username, user.first_name, user.last_name))
+                id_of_new_row = self.cursor.fetchone()[0]
+                self.connection.commit
+            return user.id
         except Exception as e:
             print("Ошибка: %s" % str(e))
 
     # Проверка пользователя на существование.
     def check_exist_client(self, user):
         cursor = self.connection.cursor()
-        cursor.execute('''SELECT count(*) FROM users where id = %s;''' % (user.id))
+        cursor.execute('''SELECT count(*) FROM users where user_id = %s;''' % (user.id))
         result = cursor.fetchone()
+        res = cursor.fetchone()
         count = result[0]
-        print("res - " + str(result[0]))
         if count > 0:
-            return True
+            self.user_id = user.id
         else:
-            self.create_user(user)
-            self.connection.close()
-            return False
+            self.user_id = self.create_user(user)
+
+    # Создание ИД отзыва.
+    def create_feedback_id(self):
+        try:
+            with self.connection:
+                self.cursor.execute('''insert into food_list default values RETURNING id''' )
+                id_of_new_row = self.cursor.fetchone()[0]
+                self.connection.commit
+                self.id_feedback = id_of_new_row
+            return id_of_new_row
+        except Exception as e:
+            print("Ошибка: %s" % str(e))
 
     def close(self):
         """ Закрываем текущее соединение с БД """
         self.connection.close()
+
+    # Записываем описание.
+    def set_descr(self, message):
+        try:
+            if self.user_id is None:
+                self.check_exist_client(self, message.user)
+            if self.id_feedback is None:
+                self.create_feedback_id()
+            with self.connection:
+                 self.cursor.execute('''UPDATE food_list SET descr = \'%s\' WHERE id = %s;''' % (
+                     message.text, self.id_feedback))
+                 self.connection.commit
+        except Exception as e:
+            print("Ошибка set_descr: %s" % str(e))
+
 
     def set_client_phone(self, contact, username):
         """
