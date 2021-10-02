@@ -65,7 +65,7 @@ class PSQLighter:
                 self.id_feedback = id_of_new_row
             return id_of_new_row
         except Exception as e:
-            print("Ошибка: %s" % str(e))
+            print("Ошибка create_feedback_id: %s" % str(e))
 
     def close(self):
         """ Закрываем текущее соединение с БД """
@@ -84,6 +84,64 @@ class PSQLighter:
                  self.connection.commit
         except Exception as e:
             print("Ошибка set_descr: %s" % str(e))
+
+    # Записываем оценку
+    def set_score(self, text):
+        try:
+            score = 0
+            if text == 'shit':
+                score = -1
+            elif text == 'good':
+                score = 1
+            with self.connection:
+                 self.cursor.execute('''UPDATE food_list SET score = \'%s\' WHERE id = %s;''' % (
+                     score, self.id_feedback))
+                 self.connection.commit
+        except Exception as e:
+            print("Ошибка set_score: %s" % str(e))
+
+    # Получаем ИД категории
+    def get_category_id(self, message):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute('''select id from categories where name = \'%s\';''' % (message.text))
+            result = cursor.fetchone()
+            res = cursor.fetchone()
+            if result is None :
+                self.cat_id = self.create_category_id(message)
+            else:
+                self.cat_id = result[0]
+            return self.cat_id
+        except Exception as e:
+            print("Ошибка get_cat_id: %s" % str(e))
+
+    # Создание ИД категории.
+    def create_category_id(self, message):
+        try:
+            with self.connection:
+                self.cursor.execute('''insert into categories(name) values(\'%s\') RETURNING id''' %(message.text))
+                id_of_new_row = self.cursor.fetchone()[0]
+                self.connection.commit
+                self.cat_id = id_of_new_row
+                return self.cat_id
+        except Exception as e:
+            print("Ошибка create_category_id: %s" % str(e))
+
+    # Установка категории
+    def set_category(self, message):
+        try:
+            if self.user_id is None:
+                self.check_exist_client(self, message.user)
+            if self.id_feedback is None:
+                self.create_feedback_id()
+            cat_id = self.get_category_id(message)
+            text = '#' + message.text
+            with self.connection:
+                 self.cursor.execute('''UPDATE food_list SET cat_id = %s WHERE id = %s;''' % (
+                     cat_id, self.id_feedback))
+                 self.connection.commit
+        except Exception as e:
+            print("Ошибка set_category: %s" % str(e))
 
 
     def set_client_phone(self, contact, username):

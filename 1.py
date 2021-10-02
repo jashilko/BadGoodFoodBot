@@ -40,10 +40,10 @@ def callback_handler(callback_query):
     text = callback_query.data
     if text in ('shit', 'good'):
         bot.send_message(chat_id=message.chat.id, text='Укажи категорию: ')
+        db_worker.set_score(text)
         update_state(message, CATEGORY)
     if text == 'canceldescr':
         update_state(message, FINISH)
-        bot.send_message(chat_id=message.chat.id, text='Укажи категорию: ')
 
 
 # Начальное состояние → Просим фото.
@@ -82,10 +82,13 @@ def handle_message(message):
 # Состояние: установлена категория → Просим описание
 @bot.message_handler(func=lambda message: get_state(message) == CATEGORY)
 def handle_message(message):
+    # Обработка категории.
+    db_worker.set_category(message)
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     b1 = types.InlineKeyboardButton(text='Не хочу', callback_data='canceldescr')
     keyboard.add(b1)
-    bot.send_message(chat_id=message.chat.id, text='Добавь описание: ', reply_markup=keyboard)
+    bot.send_message(chat_id=message.chat.id, text='Категория #' + message.text +
+                                                   ' установлена. Хочешь что-то добавить к описанию?', reply_markup=keyboard)
     update_state(message, FINISH)
 
 
