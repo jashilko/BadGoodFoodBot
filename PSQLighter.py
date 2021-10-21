@@ -157,7 +157,12 @@ class PSQLighter:
             cursor.execute('''select categories.name, score, foto_link, descr 
             from food_list left join categories on food_list.cat_id = categories.id 
             where user_id = %s order by date_add desc limit %s''' % (self.user_id, message.text))
-            result = cursor.fetchone()
-            return result
+            answers = []
+            results = cursor.fetchone()
+            while results is not None:
+                answers.append({"cat": results[0], "score": results[1], "foto_link":
+                                results[2], "descr": results[3]})
+                results = cursor.fetchone()
+            return answers
         except Exception as e:
             print("Ошибка get_lasts: %s" % str(e))

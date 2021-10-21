@@ -43,6 +43,7 @@ def callback_handler(callback_query):
         db_worker.set_score(text)
         update_state(message, CATEGORY)
     if text == 'canceldescr':
+        bot.send_message(chat_id=message.chat.id, text='Спасибо')
         update_state(message, FINISH)
 
 @bot.message_handler(commands=['start'])
@@ -94,14 +95,36 @@ def handle_message(message):
     keyboard.add(b1)
     bot.send_message(chat_id=message.chat.id, text='Категория #' + message.text +
                                                    ' установлена. Хочешь что-то добавить к описанию?', reply_markup=keyboard)
-    update_state(message, FINISH)
+    update_state(message, DESCR)
 
 
 # Прислали цифру. Выводим top последних
 @bot.message_handler(func=lambda message: message.text.isdigit())
 def handle_digit(message):
-    bot.send_message(chat_id=message.chat.id, text='Ты прислал только цифры')
-    db_worker.get_lasts(message)
+    bot.send_message(chat_id=message.chat.id, text='Вывожу ' + message.text + ' последних оценок')
+    answers = db_worker.get_lasts(message)
+    for ans in answers:
+        if ans["score"] == 1:
+            score = " Оценка: Охуенно "
+        elif ans["score"] == -1:
+            score = " Оценка: Говно "
+        else:
+            score = " "
+        if ans["descr"] is None:
+            descr = ""
+        else:
+            descr = "Описание: " + ans["descr"]
+        if ans["cat"] is None:
+            cat = " "
+        else:
+            cat = "Категория: #" + ans["cat"]
+        text = cat + score + descr
+        if ans["foto_link"] is not None:
+            bot.send_photo(chat_id=message.chat.id,
+                       photo=ans["foto_link"])
+        bot.send_message(chat_id=message.chat.id, text = text)
+
+
 
 # Прислали цифру. Выводим top последних
 @bot.message_handler(func=lambda message: message.text[0] == '#')
