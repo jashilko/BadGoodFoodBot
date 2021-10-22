@@ -43,12 +43,14 @@ def callback_handler(callback_query):
         db_worker.set_score(text)
         update_state(message, CATEGORY)
     if text == 'canceldescr':
-        bot.send_message(chat_id=message.chat.id, text='Спасибо')
+        bot.send_message(chat_id=message.chat.id, text='Bye!')
         update_state(message, FINISH)
 
 @bot.message_handler(commands=['start'])
 def handle_message(message):
     update_state(message, START)
+    bot.send_message(chat_id=message.chat.id, text='Пришли фото или название')
+    update_state(message, PHOTO)
 
 # Начальное состояние → Просим фото.
 @bot.message_handler(func=lambda message: get_state(message) == START)
@@ -98,11 +100,23 @@ def handle_message(message):
     update_state(message, DESCR)
 
 
+# Устанавливаем описание.
+@bot.message_handler(func=lambda message: get_state(message) == DESCR)
+def handle_message(message):
+    bot.send_message(chat_id=message.chat.id, text='Bye')
+    db_worker.set_descr(message)
+    update_state(message, FINISH)
+
 # Прислали цифру. Выводим top последних
 @bot.message_handler(func=lambda message: message.text.isdigit())
+@bot.message_handler(commands=['list'])
 def handle_digit(message):
-    bot.send_message(chat_id=message.chat.id, text='Вывожу ' + message.text + ' последних оценок')
+    if message.text.isdigit():
+        bot.send_message(chat_id=message.chat.id, text='Вывожу ' + message.text + ' последних оценок')
+    else:
+        bot.send_message(chat_id=message.chat.id, text='Вывожу 5 последних оценок. Для другого количества напиши цифру')
     answers = db_worker.get_lasts(message)
+    i = 1
     for ans in answers:
         if ans["score"] == 1:
             score = " Оценка: Охуенно "
@@ -118,11 +132,17 @@ def handle_digit(message):
             cat = " "
         else:
             cat = "Категория: #" + ans["cat"]
-        text = cat + score + descr
+        if ans["foto_link"] is not None:
+            emo = '⬇'
+        else:
+            emo = ''
+        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
+        bot.send_message(chat_id=message.chat.id, text=text)
+        i += 1
         if ans["foto_link"] is not None:
             bot.send_photo(chat_id=message.chat.id,
                        photo=ans["foto_link"])
-        bot.send_message(chat_id=message.chat.id, text = text)
+
 
 
 
@@ -131,6 +151,7 @@ def handle_digit(message):
 def handle_sharp(message):
     bot.send_message(chat_id=message.chat.id, text='Вывожу 5 последних ' + message.text)
     answers = db_worker.get_sharp(message)
+    i = 1
     for ans in answers:
         if ans["score"] == 1:
             score = " Оценка: Охуенно "
@@ -146,10 +167,24 @@ def handle_sharp(message):
             cat = " "
         else:
             cat = "Категория: #" + ans["cat"]
-        text = cat + score + descr
+        if ans["foto_link"] is not None:
+            emo = '⬇'
+        else:
+            emo = ''
+        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
+        bot.send_message(chat_id=message.chat.id, text = text)
+        i += 1
         if ans["foto_link"] is not None:
             bot.send_photo(chat_id=message.chat.id,
                        photo=ans["foto_link"])
-        bot.send_message(chat_id=message.chat.id, text = text)
+
+@bot.message_handler(commands=['setting'])
+def handle_message(message):
+    bot.send_message(chat_id=message.chat.id, text='Coming soon')
+
+@bot.message_handler(commands=['help'])
+def handle_message(message):
+    bot.send_message(chat_id=message.chat.id, text='Кидай фото еды и давай оценку. Бот запомнит и покажет, что хорошо, а что нет')
+
 
 bot.polling()

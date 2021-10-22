@@ -71,9 +71,16 @@ class PSQLighter:
                 self.check_exist_client(message.from_user)
             if self.id_feedback is None:
                 self.create_feedback_id()
+            cursor = self.connection.cursor()
+            cursor.execute('''select descr from food_list where id = %s;''' % (self.id_feedback))
+            result = cursor.fetchone()
+            descr = ""
+            if result[0] is not None:
+                descr = result[0]
+            descr = descr + ": " + message.text
             with self.connection:
                  self.cursor.execute('''UPDATE food_list SET descr = \'%s\' WHERE id = %s;''' % (
-                     message.text, self.id_feedback))
+                     descr, self.id_feedback))
                  self.connection.commit
         except Exception as e:
             print("Ошибка set_descr: %s" % str(e))
@@ -154,32 +161,36 @@ class PSQLighter:
             if self.user_id is None:
                 self.check_exist_client(message.from_user)
             cursor = self.connection.cursor()
-            cursor.execute('''select categories.name, score, foto_link, descr 
+            cursor.execute('''select categories.name, score, foto_link, descr, food_list.id
              from food_list left join categories on food_list.cat_id = categories.id 
-             where UPPER(categories.name) = UPPER(\'%s\') order by date_add desc limit 5''' % (message.text[1:]))
+             where UPPER(categories.name) = UPPER(\'%s\') and score is not null and categories.name is not null order by date_add desc limit 5''' % (message.text[1:]))
             answers = []
             results = cursor.fetchone()
             while results is not None:
                 answers.append({"cat": results[0], "score": results[1], "foto_link":
-                    results[2], "descr": results[3]})
+                    results[2], "descr": results[3], "id": results[4]})
                 results = cursor.fetchone()
             return answers
         except Exception as e:
             print("Ошибка get_sharp: %s" % str(e))
 
-    def get_lasts(self, message):
+    def get_lasts(self, message, countt = 5):
         try:
             if self.user_id is None:
                 self.check_exist_client(message.from_user)
+            if message.text.isdigit():
+                count = message.text
+            else:
+                count = countt
             cursor = self.connection.cursor()
-            cursor.execute('''select categories.name, score, foto_link, descr 
+            cursor.execute('''select categories.name, score, foto_link, descr, food_list.id 
             from food_list left join categories on food_list.cat_id = categories.id 
-            where user_id = %s order by date_add desc limit %s''' % (self.user_id, message.text))
+            where user_id = %s and score is not null and categories.name is not null order by date_add desc limit %s''' % (self.user_id, count))
             answers = []
             results = cursor.fetchone()
             while results is not None:
                 answers.append({"cat": results[0], "score": results[1], "foto_link":
-                                results[2], "descr": results[3]})
+                                results[2], "descr": results[3], "id": results[4]})
                 results = cursor.fetchone()
             return answers
         except Exception as e:
