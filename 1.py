@@ -126,11 +126,30 @@ def handle_digit(message):
 
 
 
-# Прислали цифру. Выводим top последних
+# Прислали тег. Выводим top 5 последних по тегу
 @bot.message_handler(func=lambda message: message.text[0] == '#')
 def handle_sharp(message):
-    bot.send_message(chat_id=message.chat.id, text='Ты прислал #')
-
-
+    bot.send_message(chat_id=message.chat.id, text='Вывожу 5 последних ' + message.text)
+    answers = db_worker.get_sharp(message)
+    for ans in answers:
+        if ans["score"] == 1:
+            score = " Оценка: Охуенно "
+        elif ans["score"] == -1:
+            score = " Оценка: Говно "
+        else:
+            score = " "
+        if ans["descr"] is None:
+            descr = ""
+        else:
+            descr = "Описание: " + ans["descr"]
+        if ans["cat"] is None:
+            cat = " "
+        else:
+            cat = "Категория: #" + ans["cat"]
+        text = cat + score + descr
+        if ans["foto_link"] is not None:
+            bot.send_photo(chat_id=message.chat.id,
+                       photo=ans["foto_link"])
+        bot.send_message(chat_id=message.chat.id, text = text)
 
 bot.polling()

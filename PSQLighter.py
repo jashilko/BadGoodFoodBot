@@ -149,6 +149,24 @@ class PSQLighter:
         except Exception as e:
             print("Ошибка set_photo: %s" % str(e))
 
+    def get_sharp(self, message):
+        try:
+            if self.user_id is None:
+                self.check_exist_client(message.from_user)
+            cursor = self.connection.cursor()
+            cursor.execute('''select categories.name, score, foto_link, descr 
+             from food_list left join categories on food_list.cat_id = categories.id 
+             where UPPER(categories.name) = UPPER(\'%s\') order by date_add desc limit 5''' % (message.text[1:]))
+            answers = []
+            results = cursor.fetchone()
+            while results is not None:
+                answers.append({"cat": results[0], "score": results[1], "foto_link":
+                    results[2], "descr": results[3]})
+                results = cursor.fetchone()
+            return answers
+        except Exception as e:
+            print("Ошибка get_sharp: %s" % str(e))
+
     def get_lasts(self, message):
         try:
             if self.user_id is None:
