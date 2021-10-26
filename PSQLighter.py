@@ -1,7 +1,5 @@
 import psycopg2
-import dj_database_url
 import os
-from datetime import datetime
 
 
 

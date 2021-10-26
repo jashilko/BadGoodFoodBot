@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-telebot = "*"
 pytelegrambotapi = "*"
 psycopg2 = "*"
 dj-config-url = "*"

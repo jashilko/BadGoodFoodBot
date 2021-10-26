@@ -7,7 +7,7 @@ from telebot import types
 token = os.environ['tg_token']
 
 ZERO, START, PHOTO, RATE, CATEGORY, DESCR, FINISH = range(7)
-USER_STATE = defaultdict(lambda: ZERO)
+USER_STATE = defaultdict(lambda: START)
 
 db_worker = PSQLighter()
 
@@ -32,6 +32,86 @@ def create_keyboard():
 
 bot = telebot.TeleBot(token)
 
+# Прислали цифру. Выводим top последних
+@bot.message_handler(func=lambda message: message.text.isdigit())
+@bot.message_handler(commands=['list'])
+def handle_digit(message):
+    if message.text.isdigit():
+        countt = int(message.text)
+    else:
+        countt = 5
+    answers = db_worker.get_lasts(message)
+    if len(answers) == 0:
+        bot.send_message(chat_id=message.chat.id, text='Нет записей в базе')
+    elif message.text.isdigit():
+        if countt > len(answers):
+            bot.send_message(chat_id=message.chat.id, text='В базе только  ' + str(len(answers)) + ' оценок: ')
+        else:
+            bot.send_message(chat_id=message.chat.id, text='Вывожу ' + message.text + ' последних оценок: ')
+    else:
+        bot.send_message(chat_id=message.chat.id, text='Вывожу '+ str(len(answers)) + ' последних оценок. Для другого количества напиши цифру: ')
+
+    i = 1
+    for ans in answers:
+        if ans["score"] == 1:
+            score = " Оценка: Охуенно "
+        elif ans["score"] == -1:
+            score = " Оценка: Говно "
+        else:
+            score = " "
+        if ans["descr"] is None:
+            descr = ""
+        else:
+            descr = "Описание: " + ans["descr"]
+        if ans["cat"] is None:
+            cat = " "
+        else:
+            cat = "Категория: #" + ans["cat"]
+        if ans["foto_link"] is not None:
+            emo = '⬇'
+        else:
+            emo = ''
+        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
+        bot.send_message(chat_id=message.chat.id, text=text)
+        i += 1
+        if ans["foto_link"] is not None:
+            bot.send_photo(chat_id=message.chat.id,
+                       photo=ans["foto_link"])
+        update_state(message, START)
+
+
+# Прислали тег. Выводим top 5 последних по тегу
+@bot.message_handler(func=lambda message: message.text[0] == '#')
+def handle_sharp(message):
+    bot.send_message(chat_id=message.chat.id, text='Вывожу 5 последних ' + message.text)
+    answers = db_worker.get_sharp(message)
+    i = 1
+    for ans in answers:
+        if ans["score"] == 1:
+            score = " Оценка: Охуенно "
+        elif ans["score"] == -1:
+            score = " Оценка: Говно "
+        else:
+            score = " "
+        if ans["descr"] is None:
+            descr = ""
+        else:
+            descr = "Описание: " + ans["descr"]
+        if ans["cat"] is None:
+            cat = " "
+        else:
+            cat = "Категория: #" + ans["cat"]
+        if ans["foto_link"] is not None:
+            emo = '⬇'
+        else:
+            emo = ''
+        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
+        bot.send_message(chat_id=message.chat.id, text = text)
+        i += 1
+        if ans["foto_link"] is not None:
+            bot.send_photo(chat_id=message.chat.id,
+                       photo=ans["foto_link"])
+        update_state(message, START)
 
 # Обработка нажатия inline-книпки
 @bot.callback_query_handler(func=lambda x: True)
@@ -52,10 +132,17 @@ def handle_message(message):
     bot.send_message(chat_id=message.chat.id, text='Пришли фото или название')
     update_state(message, PHOTO)
 
+@bot.message_handler(commands=['help'])
+def handle_message(message):
+    bot.send_message(chat_id=message.chat.id, text='Кидай фото еды и давай оценку. \n'
+                                                   'Бот запомнит и покажет, что хорошо, а что нет. \n'
+                                                   'Напиши цифру, чтобы вывести столько последних оценок.\n'
+                                                   'Напиши \"#кофе\", чтобы получить 5 последних записей про кофе')
+
 # Начальное состояние → Просим фото.
 @bot.message_handler(func=lambda message: get_state(message) == START)
 def handle_message(message):
-    bot.send_message(chat_id=message.chat.id, text='Пришли фото')
+    bot.send_message(chat_id=message.chat.id, text='Пришли фото или название')
     update_state(message, PHOTO)
 
 
@@ -107,84 +194,12 @@ def handle_message(message):
     db_worker.set_descr(message)
     update_state(message, FINISH)
 
-# Прислали цифру. Выводим top последних
-@bot.message_handler(func=lambda message: message.text.isdigit())
-@bot.message_handler(commands=['list'])
-def handle_digit(message):
-    if message.text.isdigit():
-        bot.send_message(chat_id=message.chat.id, text='Вывожу ' + message.text + ' последних оценок')
-    else:
-        bot.send_message(chat_id=message.chat.id, text='Вывожу 5 последних оценок. Для другого количества напиши цифру')
-    answers = db_worker.get_lasts(message)
-    i = 1
-    for ans in answers:
-        if ans["score"] == 1:
-            score = " Оценка: Охуенно "
-        elif ans["score"] == -1:
-            score = " Оценка: Говно "
-        else:
-            score = " "
-        if ans["descr"] is None:
-            descr = ""
-        else:
-            descr = "Описание: " + ans["descr"]
-        if ans["cat"] is None:
-            cat = " "
-        else:
-            cat = "Категория: #" + ans["cat"]
-        if ans["foto_link"] is not None:
-            emo = '⬇'
-        else:
-            emo = ''
-        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
-        bot.send_message(chat_id=message.chat.id, text=text)
-        i += 1
-        if ans["foto_link"] is not None:
-            bot.send_photo(chat_id=message.chat.id,
-                       photo=ans["foto_link"])
-
-
-
-
-# Прислали тег. Выводим top 5 последних по тегу
-@bot.message_handler(func=lambda message: message.text[0] == '#')
-def handle_sharp(message):
-    bot.send_message(chat_id=message.chat.id, text='Вывожу 5 последних ' + message.text)
-    answers = db_worker.get_sharp(message)
-    i = 1
-    for ans in answers:
-        if ans["score"] == 1:
-            score = " Оценка: Охуенно "
-        elif ans["score"] == -1:
-            score = " Оценка: Говно "
-        else:
-            score = " "
-        if ans["descr"] is None:
-            descr = ""
-        else:
-            descr = "Описание: " + ans["descr"]
-        if ans["cat"] is None:
-            cat = " "
-        else:
-            cat = "Категория: #" + ans["cat"]
-        if ans["foto_link"] is not None:
-            emo = '⬇'
-        else:
-            emo = ''
-        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
-        bot.send_message(chat_id=message.chat.id, text = text)
-        i += 1
-        if ans["foto_link"] is not None:
-            bot.send_photo(chat_id=message.chat.id,
-                       photo=ans["foto_link"])
 
 @bot.message_handler(commands=['setting'])
 def handle_message(message):
     bot.send_message(chat_id=message.chat.id, text='Coming soon')
 
-@bot.message_handler(commands=['help'])
-def handle_message(message):
-    bot.send_message(chat_id=message.chat.id, text='Кидай фото еды и давай оценку. Бот запомнит и покажет, что хорошо, а что нет')
+
 
 
 bot.polling()
