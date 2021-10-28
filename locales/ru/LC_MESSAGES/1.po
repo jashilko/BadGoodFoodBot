@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: 1.py:155
+msgid "This is a help"
+msgstr "Это справка"
+
+msgid "Shit"
+msgstr "Говно"
+
+msgid "Amazing"
+msgstr "Охуенно"
+
+msgid "No records in the database"
+msgstr "Нет записей в базе данных"

@@ -1,8 +1,21 @@
 import telebot
 import os
+import gettext
 from PSQLighter import PSQLighter
 from collections import defaultdict
 from telebot import types
+
+
+# Скачиваем пакет утилит для винды https://mlocati.github.io/articles/gettext-iconv-windows.html
+# 1. Запуск xgettext mary.py → Создается файл .po - редактируемый
+# 2. Запуск msgfmt mary.po → создается файл .mo - для быстрого чтения программой
+# 3. Статья https://phrase.com/blog/posts/translate-python-gnu-gettext/
+
+
+el = gettext.translation('1', localedir='locales', languages=['ru'])
+el.install()
+
+_ = el.gettext
 
 token = os.environ['tg_token']
 
@@ -24,8 +37,8 @@ def update_state(message, state):
 # Создаем inline-клавиатуру.
 def create_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
-    b1 = types.InlineKeyboardButton(text='💩' + ' Говно', callback_data='shit')
-    b2 = types.InlineKeyboardButton(text='Охуенно ' + '😻', callback_data='good')
+    b1 = types.InlineKeyboardButton(text='💩 ' + _('Shit'), callback_data='shit')
+    b2 = types.InlineKeyboardButton(text=_('Amazing') + ' 😻', callback_data='good')
     keyboard.add(b1, b2)
     return keyboard
 
@@ -42,7 +55,7 @@ def handle_digit(message):
         countt = 5
     answers = db_worker.get_lasts(message)
     if len(answers) == 0:
-        bot.send_message(chat_id=message.chat.id, text='Нет записей в базе')
+        bot.send_message(chat_id=message.chat.id, text=_('No records in the database'))
     elif message.text.isdigit():
         if countt > len(answers):
             bot.send_message(chat_id=message.chat.id, text='В базе только  ' + str(len(answers)) + ' оценок: ')
@@ -134,10 +147,21 @@ def handle_message(message):
 
 @bot.message_handler(commands=['help'])
 def handle_message(message):
-    bot.send_message(chat_id=message.chat.id, text='Кидай фото еды и давай оценку. \n'
-                                                   'Бот запомнит и покажет, что хорошо, а что нет. \n'
-                                                   'Напиши цифру, чтобы вывести столько последних оценок.\n'
-                                                   'Напиши \"#кофе\", чтобы получить 5 последних записей про кофе')
+    name = _("Mary")
+
+    # help = _('Кидай фото еды и давай оценку. \n ' \
+    #        'Бот запомнит и покажет, что хорошо, а что нет. \n ' \
+    #        'Напиши цифру, чтобы вывести столько последних оценок.\n ' \
+    #        'Напиши \"#кофе\", чтобы получить 5 последних записей про кофе')
+
+    # help_en = _('Upload a photo of the food and give an assessment. \n '
+    #             'The bot will remember and show what is good and what is not. \n '
+    #             'Write a number to output so many recent scores.\n '
+    #             'Write \"#coffee\" to get the last 5 entries about coffee')
+
+    help_en = _("This is a help")
+
+    bot.send_message(chat_id=message.chat.id, text=help_en)
 
 # Начальное состояние → Просим фото.
 @bot.message_handler(func=lambda message: get_state(message) == START)
