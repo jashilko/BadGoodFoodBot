@@ -14,8 +14,8 @@ from telebot import types
 
 el = gettext.translation('1', localedir='locales', languages=['ru'])
 el.install()
-
 _ = el.gettext
+
 
 token = os.environ['tg_token']
 
@@ -28,6 +28,12 @@ db_worker = PSQLighter()
 def get_state(message):
     return USER_STATE[message.chat.id]
 
+def set_lang(lang='ru'):
+    global el
+    global _
+    el = gettext.translation('1', localedir='locales', languages=[lang])
+    el.install()
+    _ = el.gettext
 
 # Устанавливаем состояние пользователя
 def update_state(message, state):
@@ -143,7 +149,15 @@ def callback_handler(callback_query):
     if text == 'canceldescr':
         bot.send_message(chat_id=message.chat.id, text='Bye!')
         update_state(message, FINISH)
+    if text in "enlang":
+        set_lang('en')
+        handle_start(message)
+    if text in "rulang":
+        set_lang('ru')
+        handle_start(message)
 
+
+# Обработка команды /setting
 @bot.message_handler(commands=['setting'])
 def handle_message(message):
     keyboard = types.InlineKeyboardMarkup(row_width=2)
@@ -157,7 +171,7 @@ def handle_message(message):
                      reply_markup=keyboard)
 
 @bot.message_handler(commands=['start'])
-def handle_message(message):
+def handle_start(message):
     update_state(message, START)
     text = _("Upload a photo or write a name")
     bot.send_message(chat_id=message.chat.id, text=text)

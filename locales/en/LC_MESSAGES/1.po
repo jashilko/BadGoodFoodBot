@@ -4,13 +4,64 @@ msgstr ""
 
 #: 1.py:155
 msgid "This is a help"
-msgstr "Это справка"
+msgstr "This is a help"
 
 msgid "Shit"
-msgstr "Говно"
+msgstr "Shit"
 
 msgid "Amazing"
-msgstr "Охуенно"
+msgstr "Amazing"
 
 msgid "No records in the database"
-msgstr "Нет записей в базе данных"
+msgstr "No records in the database"
+
+msgid "There are only %d scores"
+msgstr "There are only %d scores"
+
+msgid "Display %s of the latest scores: "
+msgstr "Display %s of the latest scores: "
+
+msgid "Display %s of the latest scores. For another count, write a number: "
+msgstr "Display %s of the latest scores. For another count, write a number: "
+
+msgid " Score: Amazing "
+msgstr " Score: Amazing "
+
+msgid " Score: Shit "
+msgstr " Score: Shit "
+
+msgid "Description: "
+msgstr "Description: "
+
+msgid "Category: #"
+msgstr "Category: #"
+
+msgid "Display 5 of the latest scores "
+msgstr "Display 5 of the latest scores "
+
+msgid "Set the category: "
+msgstr "Set the category: "
+
+msgid "Upload a photo or write a name"
+msgstr "Upload a photo or write a name"
+
+msgid " Shit"
+msgstr " Shit"
+
+msgid "Amazing "
+msgstr "Amazing "
+
+msgid "Not want"
+msgstr "Not want"
+
+msgid "Estimate the food. There is no average score, only bad or good"
+msgstr "Estimate the food. There is no average score, only bad or good"
+
+msgid "Category #%s is set. Do you want to add something to the description?"
+msgstr "Category #%s is set. Do you want to add something to the description?"
+
+msgid "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee"
+msgstr "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee"
+
+msgid "Let's set a language: "
+msgstr "Let's set a language: "
