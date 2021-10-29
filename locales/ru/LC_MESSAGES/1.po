@@ -14,3 +14,54 @@ msgstr "Охуенно"
 
 msgid "No records in the database"
 msgstr "Нет записей в базе данных"
+
+msgid "There are only %d scores"
+msgstr "В базе только  %d оценок"
+
+msgid "Display %s of the latest scores: "
+msgstr "Вывожу %s последних оценок: "
+
+msgid "Display %s of the latest scores. For another count, write a number: "
+msgstr "Вывожу %s последних оценок. Для другого количества напиши цифру: "
+
+msgid " Score: Amazing "
+msgstr " Оценка: Охуенно "
+
+msgid " Score: Shit "
+msgstr " Оценка: Говно "
+
+msgid "Description: "
+msgstr "Описание: "
+
+msgid "Category: #"
+msgstr "Категория: #"
+
+msgid "Display 5 of the latest scores "
+msgstr "Вывожу 5 последних: "
+
+msgid "Set the category: "
+msgstr "Укажи категорию: "
+
+msgid "Upload a photo or write a name"
+msgstr "Пришли фото или название"
+
+msgid " Shit"
+msgstr " Говно"
+
+msgid "Amazing "
+msgstr "Охуенно"
+
+msgid "Not want"
+msgstr "Не хочу"
+
+msgid "Estimate the food. There is no average score, only bad or good"
+msgstr "Оцени еду. Средней оценки нет, только плохо или хорошо"
+
+msgid "Category #%s is set. Do you want to add something to the description?"
+msgstr "Категория #%s установлена. Хочешь что-то добавить к описанию?"
+
+msgid "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee"
+msgstr "Кидай фото еды и давай оценку. \n. Бот запомнит и покажет, что хорошо, а что нет. \n Напиши цифру, чтобы вывести столько последних оценок.\n Напиши \"#кофе\", чтобы получить 5 последних записей про кофе"
+
+msgid "Let's set a language: "
+msgstr "Установка языка: "
