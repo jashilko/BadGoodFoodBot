@@ -136,6 +136,19 @@ def handle_sharp(message):
                        photo=ans["foto_link"])
         update_state(message, START)
 
+
+# Удаление записи по номеру
+@bot.message_handler(func=lambda message: message.text[0:2] == '-#')
+def handle_sharp(message):
+    if db_worker.del_feedback(message) == "Ok":
+        text = _("Record №%s deleted") % message.text[2:]
+    else:
+        text = _("Record №%s don't found in your records") % message.text[2:]
+    bot.send_message(chat_id=message.chat.id, text=text)
+    update_state(message, START)
+    update_state(message, START)
+
+
 # Обработка нажатия inline-книпки
 @bot.callback_query_handler(func=lambda x: True)
 def callback_handler(callback_query):

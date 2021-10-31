@@ -65,3 +65,9 @@ msgstr "Кидай фото еды и давай оценку. \n. Бот зап
 
 msgid "Let's set a language: "
 msgstr "Установка языка: "
+
+msgid "Record №%s deleted"
+msgstr "Запись №%s удалена"
+
+msgid "Record №%s don't found in your records"
+msgstr "Запись №%s у вас не зайдена"

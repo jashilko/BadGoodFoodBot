@@ -65,3 +65,9 @@ msgstr "Upload a photo of the food and give an assessment. \n The bot will remem
 
 msgid "Let's set a language: "
 msgstr "Let's set a language: "
+
+msgid "Record №%s deleted"
+msgstr "Record №%s deleted"
+
+msgid "Record №%s don't found in your records"
+msgstr "Record №%s don't found in your records"

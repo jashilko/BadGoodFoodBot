@@ -193,3 +193,23 @@ class PSQLighter:
             return answers
         except Exception as e:
             print("Ошибка get_lasts: %s" % str(e))
+
+    # Удаляем запись по сообщению типа "-#17"
+    def del_feedback(self, message):
+        try:
+            if self.user_id is None:
+                self.check_exist_client(message.from_user)
+            cursor = self.connection.cursor()
+            if message.text[2:].isdigit():
+                cursor.execute('''SELECT count(*) FROM food_list where id = %s and user_id = %s;''' % (message.text[2:], self.user_id))
+                result = cursor.fetchone()
+                res = cursor.fetchone()
+                count = result[0]
+                if count == 0:
+                    return "Not_Found"
+                else:
+                    cursor.execute('''DELETE FROM food_list WHERE id = %s and user_id = %s;''' % (message.text[2:], self.user_id))
+                    self.connection.commit()
+                    return "Ok"
+        except Exception as e:
+            print("Ошибка del_feedback: %s" % str(e))
