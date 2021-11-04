@@ -1,6 +1,8 @@
 import telebot
 import os
 import gettext
+import flask
+from flask import Flask, request
 from PSQLighter import PSQLighter
 from collections import defaultdict
 from telebot import types
@@ -12,6 +14,7 @@ from telebot import types
 # 3. Статья https://phrase.com/blog/posts/translate-python-gnu-gettext/
 
 
+
 el = gettext.translation('1', localedir='locales', languages=['ru'])
 el.install()
 _ = el.gettext
@@ -19,10 +22,32 @@ _ = el.gettext
 
 token = os.environ['tg_token']
 
+#Настройки веб-сервера.
+WEBHOOK_HOST = 'goodbadfood1.herokuapp.com'
+WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
+WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
+WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
+WEBHOOK_URL_PATH = "/%s/" % (token)
+
+bot = telebot.TeleBot(token)
+app = flask.Flask(__name__)
+
+# Process webhook calls
+@app.route("/bot", methods=['POST'])
+def getMessage():
+    bot.process_new_messages(
+        [telebot.types.Update.de_json(request.stream.read().decode("utf-8")).message
+        ])
+    return "!", 200
+
+
 ZERO, START, PHOTO, RATE, CATEGORY, DESCR, FINISH = range(7)
 USER_STATE = defaultdict(lambda: START)
 
 db_worker = PSQLighter()
+
+
+
 
 # Получаем состояние пользователя
 def get_state(message):
@@ -49,7 +74,6 @@ def create_keyboard():
     return keyboard
 
 
-bot = telebot.TeleBot(token)
 
 # Прислали цифру. Выводим top последних
 @bot.message_handler(func=lambda message: message.text.isdigit())
@@ -261,4 +285,5 @@ def handle_message(message):
     bot.send_message(chat_id=message.chat.id, text='Coming soon')
 
 
-bot.polling()
+#bot.polling()
+app.run(host="0.0.0.0", port=os.environ.get('PORT', 5001))
