@@ -10,7 +10,7 @@ psycopg2 = "*"
 dj-config-url = "*"
 settings = "*"
 pytelegrambotapi = "*"
-flask = "*"
+flask = "==2.0.0"
 dataclasses = "==0.6"
 
 [requires]

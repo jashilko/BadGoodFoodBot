@@ -1,7 +1,6 @@
 import telebot
 import os
 import gettext
-import flask
 from flask import Flask, request
 from PSQLighter import PSQLighter
 from collections import defaultdict
@@ -22,30 +21,14 @@ _ = el.gettext
 
 token = os.environ['tg_token']
 
-#Настройки веб-сервера.
-WEBHOOK_HOST = 'goodbadfood1.herokuapp.com'
-WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
-WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
-WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (token)
 
 bot = telebot.TeleBot(token)
-app = flask.Flask(__name__)
-
-# Process webhook calls
-@app.route("/bot", methods=['POST'])
-def getMessage():
-    bot.process_new_messages(
-        [telebot.types.Update.de_json(request.stream.read().decode("utf-8")).message
-        ])
-    return "!", 200
-
+server = Flask(__name__)
 
 ZERO, START, PHOTO, RATE, CATEGORY, DESCR, FINISH = range(7)
 USER_STATE = defaultdict(lambda: START)
 
 db_worker = PSQLighter()
-
 
 
 
@@ -68,8 +51,8 @@ def update_state(message, state):
 # Создаем inline-клавиатуру.
 def create_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
-    b1 = types.InlineKeyboardButton(text='💩 ' + _('Shit'), callback_data='shit')
-    b2 = types.InlineKeyboardButton(text=_('Amazing') + ' 😻', callback_data='good')
+    b1 = types.InlineKeyboardButton(text='💩' + _(' Shit'), callback_data='shit')
+    b2 = types.InlineKeyboardButton(text=_('Amazing ') + ' 😻', callback_data='good')
     keyboard.add(b1, b2)
     return keyboard
 
@@ -100,9 +83,9 @@ def handle_digit(message):
     i = 1
     for ans in answers:
         if ans["score"] == 1:
-            score = _(" Score: Amazing ")
+            score = _(" Score: Amazing ") + "😻"
         elif ans["score"] == -1:
-            score = _(" Score: Shit ")
+            score = _(" Score: Shit ") + "💩"
         else:
             score = " "
         if ans["descr"] is None:
@@ -135,9 +118,9 @@ def handle_sharp(message):
     i = 1
     for ans in answers:
         if ans["score"] == 1:
-            score = _(" Score: Amazing ")
+            score = _(" Score: Amazing ") + "😻"
         elif ans["score"] == -1:
-            score = _(" Score: Shit ")
+            score = _(" Score: Shit ") + "💩"
         else:
             score = " "
         if ans["descr"] is None:
@@ -179,8 +162,8 @@ def callback_handler(callback_query):
     message = callback_query.message
     text = callback_query.data
     if text in ('shit', 'good'):
-        text = _("Set the category: ")
-        bot.send_message(chat_id=message.chat.id, text=text)
+        text_mes = _("Set the category: ")
+        bot.send_message(chat_id=message.chat.id, text=text_mes)
         db_worker.set_score(text)
         update_state(message, CATEGORY)
     if text == 'canceldescr':
@@ -239,12 +222,7 @@ def handle_message(message):
     else:
         db_worker.set_descr(message)
 
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    shittext = '💩' + ''
-    goottext = 'Amazing ' + '😻'
-    b1 = types.InlineKeyboardButton(text=shittext, callback_data='shit')
-    b2 = types.InlineKeyboardButton(text=goottext, callback_data='good')
-    keyboard.add(b1, b2)
+    keyboard = create_keyboard()
     text = _('Estimate the food. There is no average score, only bad or good')
     bot.send_message(chat_id=message.chat.id, text=text,
                      reply_markup=keyboard)
@@ -285,5 +263,23 @@ def handle_message(message):
     bot.send_message(chat_id=message.chat.id, text='Coming soon')
 
 
-#bot.polling()
-app.run(host="0.0.0.0", port=os.environ.get('PORT', 5001))
+if "HEROKU" in list(os.environ.keys()):
+    @server.route('/' + token, methods=['POST'])
+    def getMessage():
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return "!", 200
+
+
+    @server.route("/")
+    def webhook():
+        bot.remove_webhook()
+        bot.set_webhook(url='https://goodbadfood1.herokuapp.com/' + token)
+        return "!", 200
+
+
+    server.run(host="0.0.0.0", port=int(os.environ['PORT']))
+else:
+     bot.remove_webhook()
+     bot.polling()

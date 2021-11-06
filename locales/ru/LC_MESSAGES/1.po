@@ -61,7 +61,7 @@ msgid "Category #%s is set. Do you want to add something to the description?"
 msgstr "Категория #%s установлена. Хочешь что-то добавить к описанию?"
 
 msgid "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee"
-msgstr "Кидай фото еды и давай оценку. \n. Бот запомнит и покажет, что хорошо, а что нет. \n Напиши цифру, чтобы вывести столько последних оценок.\n Напиши \"#кофе\", чтобы получить 5 последних записей про кофе"
+msgstr "Кидай фото еды и давай оценку. \nБот запомнит и покажет, что хорошо, а что нет. \nНапиши цифру, чтобы вывести столько последних оценок.\nНапиши \"#кофе\", чтобы получить 5 последних записей про кофе. \nУдалить запись: -#13, где 13 - id записи"
 
 msgid "Let's set a language: "
 msgstr "Установка языка: "

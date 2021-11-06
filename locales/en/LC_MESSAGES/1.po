@@ -61,7 +61,7 @@ msgid "Category #%s is set. Do you want to add something to the description?"
 msgstr "Category #%s is set. Do you want to add something to the description?"
 
 msgid "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee"
-msgstr "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee"
+msgstr "Upload a photo of the food and give an assessment. \n The bot will remember and show what is good and what is not. \n Write a number to output so many recent scores.\n Write \"#coffee\" to get the last 5 entries about coffee \nFor delete: -#13, where 13 is id of record"
 
 msgid "Let's set a language: "
 msgstr "Let's set a language: "

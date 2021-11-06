@@ -145,8 +145,7 @@ class PSQLighter:
         try:
             if self.user_id is None:
                 self.check_exist_client(message.from_user)
-            if self.id_feedback is None:
-                self.create_feedback_id()
+            self.create_feedback_id()
             with self.connection:
                  self.cursor.execute('''UPDATE food_list SET foto_link = \'%s\' WHERE id = %s;''' % (
                      message.photo[-1].file_id, self.id_feedback))
