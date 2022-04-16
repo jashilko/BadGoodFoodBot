@@ -23,8 +23,7 @@ food_list = Table('food_list', metadata,
                   Column('descr', Text()),
                   Column('foto_link', Text()),
                   Column('date_add', DateTime()),
-                  Column('cat_id', Integer(), ForeignKey("categories.id")),
-                  Column('',),
+                  Column('cat_id', Integer(), ForeignKey("categories.id"))
                   )
 
 user_friends = Table('user_friends', metadata,

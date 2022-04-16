@@ -1,9 +1,12 @@
 import sqlalchemy
 from models import metadata, categories
 from sqlalchemy import create_engine
+import controller
+import os
 
-
+engine = create_engine(os.environ['DBLINK'])
 engine.connect()
+
 #print(engine)
 
 
