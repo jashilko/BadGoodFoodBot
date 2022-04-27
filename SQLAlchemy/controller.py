@@ -1,5 +1,5 @@
-from sqlalchemy import select, and_, desc, func, delete
-from models import food_list, categories
+from sqlalchemy import select, and_, desc, func, delete, union
+from models import food_list, categories, user_friends
 
 class DBWorker:
     def __init__(self, conn, user_id):
@@ -73,3 +73,29 @@ class DBWorker:
             )
             rs = self.conn.execute(d)
             return "Ok"
+    def get_from_friends(self):
+        '''
+        Получить отзывы свои и друзей
+        '''
+        # Получаем список друзей
+        flist = []
+        f = select([user_friends.c.friend_id]).where(user_friends.c.user_id == self.user_id)
+        fe = self.conn.execute(f)
+        if fe.rowcount > 0:
+            row = fe.fetchall()
+            flist = list(row[0])
+        flist.append(int(self.user_id))
+        # u = union(
+        #     [select([
+        #     categories.c.name,
+        #     food_list.c.score,
+        #     food_list.c.foto_link,
+        #     food_list.c.descr,
+        #     food_list.c.id
+        # ]).select_from(
+        #     food_list.join(categories)
+        # ).where(
+        #     food_list.c.user_id == c
+        # ) for c in flist]
+        # )
+        return flist
