@@ -1,10 +1,26 @@
 from sqlalchemy import select, and_, desc, func, delete, union
 from models import food_list, categories, user_friends
 
+
+
 class DBWorker:
     def __init__(self, conn, user_id):
         self.user_id = user_id
         self.conn = conn
+        self.flist = []
+        self.get_flist()
+
+    def get_flist(self):
+        '''
+        Получить список друзей
+        '''
+        f = select([user_friends.c.friend_id]).where(user_friends.c.user_id == self.user_id)
+        fe = self.conn.execute(f)
+        if fe.rowcount > 0:
+            row = fe.fetchall()
+            self.flist = list(row[0])
+        self.flist.append(int(self.user_id))
+
     def get_lasts(self, count):
         '''
         Получить последние записи пользователя
@@ -73,6 +89,7 @@ class DBWorker:
             )
             rs = self.conn.execute(d)
             return "Ok"
+
     def get_from_friends(self):
         '''
         Получить отзывы свои и друзей
@@ -113,15 +130,8 @@ class DBWorker:
         '''
         Получаем список по тегу своих и друзей
         '''
-        flist = []
-        f = select([user_friends.c.friend_id]).where(user_friends.c.user_id == self.user_id)
-        fe = self.conn.execute(f)
-        if fe.rowcount > 0:
-            row = fe.fetchall()
-            flist = list(row[0])
-        flist.append(int(self.user_id))
         slist = []
-        for one in flist:
+        for one in self.flist:
             s = select([
                 categories.c.name,
                 food_list.c.score,
@@ -150,5 +160,29 @@ class DBWorker:
         while results is not None:
             answers.append({"cat": results[0], "score": results[1], "foto_link":
                 results[2], "descr": results[3], "id": results[4], "user_id": results[5]})
+            results = ru.fetchone()
+        return answers
+
+    def get_all_tags(self):
+        slist = []
+        for one in self.flist:
+            s = select([
+                categories.c.name
+                ]).select_from(
+                    food_list.join(categories)
+                ).where(
+                    and_(
+                        food_list.c.user_id == one,
+                        categories.c.name != None,
+                        food_list.c.descr != None
+                    )
+            )
+            slist.append(s)
+        u = union(*slist).group_by(categories.c.name)
+        answers = []
+        ru = self.conn.execute(u)
+        results = ru.fetchone()
+        while results is not None:
+            answers.append({"cat": results[0]})
             results = ru.fetchone()
         return answers
