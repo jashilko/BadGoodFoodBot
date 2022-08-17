@@ -1,5 +1,5 @@
 from sqlalchemy import select, and_, desc, func, delete, union
-from models import food_list, categories, user_friends
+from models import food_list, categories, user_friends, users
 
 
 
@@ -90,7 +90,7 @@ class DBWorker:
             rs = self.conn.execute(d)
             return "Ok"
 
-    def get_from_friends(self):
+    def get_lasts_from_friends(self, count):
         '''
         Получить отзывы свои и друзей
         '''
@@ -109,20 +109,25 @@ class DBWorker:
                 food_list.c.score,
                 food_list.c.foto_link,
                 food_list.c.descr,
-                food_list.c.id
+                food_list.c.id,
+                food_list.c.date_add,
+                food_list.c.user_id,
+                users.c.first_name
             ]).select_from(
-                food_list.join(categories)
+                food_list.join(categories).join(users)
             ).where(
                 food_list.c.user_id == one
             )
             slist.append(s)
-        u = union(*slist)
+        u = union(*slist).limit(count).order_by(
+                desc(food_list.c.date_add)
+            )
         answers = []
         ru = self.conn.execute(u)
         results = ru.fetchone()
         while results is not None:
             answers.append({"cat": results[0], "score": results[1], "foto_link":
-                results[2], "descr": results[3], "id": results[4]})
+                results[2], "descr": results[3], "id": results[4], "first_name": results[7]})
             results = ru.fetchone()
         return answers
 
