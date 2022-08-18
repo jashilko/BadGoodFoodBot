@@ -1,14 +1,25 @@
 from sqlalchemy import select, and_, desc, func, delete, union
-from models import food_list, categories, user_friends, users
+from SQLAlchemy.models import food_list, categories, user_friends, users
+from sqlalchemy import create_engine
+import os
 
-
+engine = create_engine(os.environ['DBLINK'])
+engine.connect()
+conn1 = engine.connect()
 
 class DBWorker:
-    def __init__(self, conn, user_id):
+    conn = conn1
+    def __init__(self):
+        pass
+
+    def set_user(self, user_id):
+        '''
+        задать пользователя и получить список его друзей
+        '''
         self.user_id = user_id
-        self.conn = conn
         self.flist = []
         self.get_flist()
+
 
     def get_flist(self):
         '''
@@ -127,7 +138,7 @@ class DBWorker:
         results = ru.fetchone()
         while results is not None:
             answers.append({"cat": results[0], "score": results[1], "foto_link":
-                results[2], "descr": results[3], "id": results[4], "first_name": results[7]})
+                results[2], "descr": results[3], "id": results[4], "user_id": results[5], "first_name": results[7]})
             results = ru.fetchone()
         return answers
 
@@ -144,9 +155,10 @@ class DBWorker:
                 food_list.c.descr,
                 food_list.c.id,
                 food_list.c.user_id,
-                food_list.c.date_add
+                food_list.c.date_add,
+                users.c.first_name
             ]).select_from(
-                food_list.join(categories)
+                food_list.join(categories).join(users)
             ).where(
                 and_(
                     food_list.c.user_id == one,
@@ -164,7 +176,7 @@ class DBWorker:
         results = ru.fetchone()
         while results is not None:
             answers.append({"cat": results[0], "score": results[1], "foto_link":
-                results[2], "descr": results[3], "id": results[4], "user_id": results[5]})
+                results[2], "descr": results[3], "id": results[4], "user_id": results[5], "first_name": results[7]})
             results = ru.fetchone()
         return answers
 
