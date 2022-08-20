@@ -5,6 +5,7 @@ from flask import Flask, request
 from PSQLighter import PSQLighter
 from collections import defaultdict
 from telebot import types
+from SQLAlchemy.controller import DBWorker
 
 
 # Скачиваем пакет утилит для винды https://mlocati.github.io/articles/gettext-iconv-windows.html
@@ -29,7 +30,7 @@ ZERO, START, PHOTO, RATE, CATEGORY, DESCR, FINISH = range(7)
 USER_STATE = defaultdict(lambda: START)
 
 db_worker = PSQLighter()
-
+worker = DBWorker()
 
 
 # Получаем состояние пользователя
@@ -66,7 +67,9 @@ def handle_digit(message):
         countt = int(message.text)
     else:
         countt = 5
-    answers = db_worker.get_lasts(message)
+    #answers = db_worker.get_lasts(message)
+    worker.set_user(message.from_user.id)
+    answers = worker.get_lasts_from_friends(countt)
     if len(answers) == 0:
         text = _('No records in the database')
     elif message.text.isdigit():
@@ -82,25 +85,11 @@ def handle_digit(message):
 
     i = 1
     for ans in answers:
-        if ans["score"] == 1:
-            score = _(" Score: Amazing ") + "😻"
-        elif ans["score"] == -1:
-            score = _(" Score: Shit ") + "💩"
-        else:
-            score = " "
-        if ans["descr"] is None:
-            descr = ""
-        else:
-            descr = _("Description: ") + ans["descr"]
-        if ans["cat"] is None:
-            cat = " "
-        else:
-            cat = _("Category: #") + ans["cat"]
-        if ans["foto_link"] is not None:
-            emo = '⬇'
-        else:
-            emo = ''
-        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
+        score = _(" Score: Amazing ") + "😻" if ans["score"] == 1 else _(" Score: Shit ") + "💩"
+        descr = "" if not ans["descr"] else _("Description: ") + ans["descr"]
+        cat = "" if not ans["cat"] else _("Category: #") + ans["cat"]
+        emo = "" if not ans["foto_link"] else "⬇"
+        text = "{}) {};{}{}; User: {}; (id={}) {}".format(str(i), cat, score, descr, ans["first_name"], ans["id"], emo)
         bot.send_message(chat_id=message.chat.id, text=text)
         i += 1
         if ans["foto_link"] is not None:
@@ -108,34 +97,36 @@ def handle_digit(message):
                        photo=ans["foto_link"])
         update_state(message, START)
 
+# Прислали тег+тег. Выводим список всех тегов
+@bot.message_handler(func=lambda message: message.text == '##')
+def handle_allsharp(message):
+    worker.set_user(message.from_user.id)
+    answers = worker.get_all_tags()
+    i = 1
+    catlist = ""
+    for ans in answers:
+        catlist = catlist + ans["cat"] + ", "
+
+    text1 = _("All categories: ") + catlist[:-2]
+
+    bot.send_message(chat_id=message.chat.id, text = text1)
+    update_state(message, START)
 
 # Прислали тег. Выводим top 5 последних по тегу
 @bot.message_handler(func=lambda message: message.text[0] == '#')
 def handle_sharp(message):
     text = _("Display 5 of the latest scores ") + message.text
     bot.send_message(chat_id=message.chat.id, text=text)
-    answers = db_worker.get_sharp(message)
+    #answers = db_worker.get_sharp(message)
+    worker.set_user(message.from_user.id)
+    answers = worker.get_sharp_friends(message.text[1:])
     i = 1
     for ans in answers:
-        if ans["score"] == 1:
-            score = _(" Score: Amazing ") + "😻"
-        elif ans["score"] == -1:
-            score = _(" Score: Shit ") + "💩"
-        else:
-            score = " "
-        if ans["descr"] is None:
-            descr = ""
-        else:
-            descr = _("Description: ") + ans["descr"]
-        if ans["cat"] is None:
-            cat = " "
-        else:
-            cat = _("Category: #") + ans["cat"]
-        if ans["foto_link"] is not None:
-            emo = '⬇'
-        else:
-            emo = ''
-        text = str(i) + ") " + cat + score + descr + "(id=" + str(ans["id"]) + ")" + emo
+        score = _(" Score: Amazing ") + "😻" if ans["score"] == 1 else _(" Score: Shit ") + "💩"
+        descr = "" if not ans["descr"] else _("Description: ") + ans["descr"]
+        cat = "" if not ans["cat"] else _("Category: #") + ans["cat"]
+        emo = "" if not ans["foto_link"] else "⬇"
+        text = "{}) {};{}{}; User: {}; (id={}) {}".format(str(i), cat, score, descr, ans["first_name"], ans["id"], emo)
         bot.send_message(chat_id=message.chat.id, text = text)
         i += 1
         if ans["foto_link"] is not None:

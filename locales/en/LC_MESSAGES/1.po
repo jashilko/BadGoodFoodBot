@@ -71,3 +71,7 @@ msgstr "Record №%s deleted"
 
 msgid "Record №%s don't found in your records"
 msgstr "Record №%s don't found in your records"
+
+msgid "All categories: "
+msgstr "All categories: "
+

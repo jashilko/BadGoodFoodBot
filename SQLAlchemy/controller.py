@@ -190,8 +190,7 @@ class DBWorker:
                 ).where(
                     and_(
                         food_list.c.user_id == one,
-                        categories.c.name != None,
-                        food_list.c.descr != None
+                        categories.c.name != None
                     )
             )
             slist.append(s)
@@ -200,6 +199,6 @@ class DBWorker:
         ru = self.conn.execute(u)
         results = ru.fetchone()
         while results is not None:
-            answers.append({"cat": results[0]})
+            answers.append({"cat": "#" + results[0]})
             results = ru.fetchone()
         return answers

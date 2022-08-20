@@ -5,8 +5,8 @@ from controller import DBWorker
 import controller
 import os
 
-engine = create_engine(os.environ['DBLINK'])
-engine.connect()
+#engine = create_engine(os.environ['DBLINK'])
+#engine.connect()
 
 #print(engine)
 
@@ -17,8 +17,10 @@ engine.connect()
 #s = categories.select()
 #print(s)
 
-conn = engine.connect()
-w = DBWorker(conn, '2150772')
+#conn = engine.connect()
+w = DBWorker()
+w.set_user('2150772')
+
 #s = w.get_lasts(4)
 #s = categories.select()
 #r = conn.execute(s)
@@ -28,4 +30,5 @@ w = DBWorker(conn, '2150772')
 #r = conn.execute(s)
 #rint(r.fetchall())
 #print(w.del_feedback(33))
-print(w.get_lasts_from_friends(5))
+#print(w.get_sharp_friends('пиво'))
+print (w.get_all_tags())
