@@ -32,7 +32,12 @@
 
 
 ## <a name="deploy">Развертывание</a>
-Бот задеплоен на Heroku
+~~Бот задеплоен на Heroku~~ - Бесплатные деплои на хероку закрыты. Переносим на свой сервер.
+
+### Коннект к БД
+1. sudo -i -u postgres
+2. psql
+3. \connect foodbot
 
 ## <a name="adv">Ссылки и реклама</a>
 Ссылка на бота: [https://t.me/GoodBadFoodBot](https://t.me/GoodBadFoodBot)
